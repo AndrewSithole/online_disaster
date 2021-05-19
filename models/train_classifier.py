@@ -3,10 +3,10 @@ import re
 import pandas as pd
 import nltk
 import pickle
-#
-# nltk.download('stopwords')
-# nltk.download('wordnet')
-# nltk.download('punkt')
+
+nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('punkt')
 
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -104,17 +104,14 @@ def build_model():
         ('classifier', MultiOutputClassifier(AdaBoostClassifier(base_estimator=DecisionTreeClassifier(max_depth=1, class_weight='balanced', random_state=42))))
     ])
 
-    parameters = {'classifier__estimator': [AdaBoostClassifier(base_estimator=DecisionTreeClassifier(class_weight='balanced',
-                                                          max_depth=1,
-                                                          random_state=42)),
-                                            KNeighborsClassifier(),
-                                            RandomForestClassifier(),
-                                            ]
+    parameters = {'classifier__estimator__base_estimator__criterion': ['gini', 'entropy'],
+                  'classifier__estimator__base_estimator__max_depth': [2, 4, 6, 8, 10, 12],
+                  "classifier__estimator__n_estimators": [1, 2, 3]
                   }
 
-    cv = GridSearchCV(pipeline, param_grid=parameters, verbose=2)
+    grid_search = GridSearchCV(pipeline, param_grid=parameters, verbose=2)
 
-    return cv
+    return grid_search
 
 
 def evaluate_model(model, X_test, y_test, category_names):
@@ -153,12 +150,18 @@ def main():
 
         print('Training model...')
         model.fit(X_train, Y_train)
+        print('Best Criterion:',
+              model.best_estimator_.get_params()['classifier__estimator__base_estimator__criterion'])
+        print('Best max_depth:',
+              model.best_estimator_.get_params()['classifier__estimator__base_estimator__max_depth'])
+        print()
+        print(model.best_estimator_.get_params()['classifier'])
 
         print('Evaluating model...')
         evaluate_model(model, X_test, Y_test, category_names)
-
-        print('Saving model...\n    MODEL: {}'.format(model_filepath))
-        save_model(model, model_filepath)
+        #
+        # print('Saving model...\n    MODEL: {}'.format(model_filepath))
+        # save_model(model, model_filepath)
 
         print('Trained model saved!')
 

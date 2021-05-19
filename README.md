@@ -12,41 +12,70 @@
 ## Libraries
 All libraries are available in Anaconda distribution of Python.
 
-[pandas](https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html) - For data manipulation and analysis;
-
-[numpy](https://numpy.org/doc/stable/user/absolute_beginners.html) - For mathematical functions;
-
-[re](https://docs.python.org/3/library/re.html) - For regular expression;
-
 [sys](https://www.python-course.eu/sys_module.php) - For information about constants, functions and methods; 
 
-[sklearn](https://scikit-learn.org/stable/) - Machine learning library; 
+[pandas](https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html) - For data manipulation and analysis;
+
+[sqlalchemy](https://numpy.org/doc/stable/user/absolute_beginners.html) - An open-source SQL toolkit and object-relational mapper for the Python programming language;
+
+[re](https://docs.python.org/3/library/re.html) - For processing regular expressions;
 
 [nltk](https://www.nltk.org/) - Natural Language Toolkit, is a suite of libraries and programs for symbolic and statistical natural language processing for English written in the Python programming language;
 
-[sqlalchemy](https://www.sqlalchemy.org/) - An open-source SQL toolkit and object-relational mapper for the Python programming language;
-
 [pickle](https://docs.python.org/3/library/pickle.html) - For serializing and deserializing a Python object structure;
+
+[sklearn](https://scikit-learn.org/stable/) - Machine learning library; 
+
+[numpy](https://numpy.org/doc/stable/user/absolute_beginners.html) - For mathematical functions;
 
 [Flask](https://flask.palletsprojects.com/en/1.1.x/) - is a micro web framework written in Python;
 
-[sqlite3](https://docs.python.org/3/library/sqlite3.html) -  interfaces for working with the SQLite database;
-
-[pickle](https://docs.python.org/3/library/pickle.html) - implements binary protocols for serializing and de-serializing a Python object structure;
+[plotly](https://plotly.com/) - For plotting charts;
 
 ## Project Motivation 
 
-The goal of the project is to analyze disaster data from Figure Eight and build a model for an API that classifies disaster messages. Allow user input a message and get classification results in several categories. 
+The goal of the project is to analyze disaster data from [Figure Eight](https://www.figure-eight.com/) to build a model for an API that classifies disaster messages 
 
 ## Project Description
 
-Build an ETL Pipeline In a Python script, process_data.py, write a data cleaning pipeline that: Loads the messages and categories datasets Merges the two datasets Cleans the data Stores it in a SQLite database
+The project uses a data set containing real messages that were sent during disaster events  to create a machine learning pipeline to categorize these events so that you can send the messages to an appropriate disaster relief agency.
 
-Build a ML Pipeline In a Python script, train_classifier.py, write a machine learning pipeline that: Loads data from the SQLite database Splits the dataset into training and test sets Builds a text processing and machine learning pipeline Trains and tunes a model using GridSearchCV Outputs results on the test set Exports the final model as a pickle file
+The project includes a web app where an emergency worker can input a new message and get classification results in several categories. The web app will also display visualizations of the data used to train the classifier.
 
-use Flask Web App to get the user message and classify them into 36 categories. Also include beautiful visualization of the data.
+
+## Results
+The application in action!
+![title](images/app_screenshot.png)
+
+## Observations
+I observed that although the classifier works, its not producing the optimum results. 
+This is because the dome of the classes like "child-alone" and "offer" have very few values that in the classification report, they sometimes show up with 0 as shown in the image below.
+![title](images/classification_report.png)
+This affects the training model as there is little (and sometimes no) data to train with. 
+From the above image, we also notice that certain fields like "related" and "weather_related" have a high precision (proportion of positive identifications) meaning that our model is more likely going to accurately classify those categories.
+
+The recall is generally high meaning that -- of the actual positive values, a good percentage of them is getting classified correctly. This is a better result.
+
+precision and recall of the 
+## Visualization
+
+![title](images/newplot.png)
+
+## Instructions to run 
+1. Run the following commands in the project's root directory to set up your database and model.
+
+    - To run ETL pipeline that cleans data and stores in database
+        `python data/process_data.py data/disaster_messages.csv data/disaster_categories.csv data/messages.db`
+    - To run ML pipeline that trains classifier and saves
+        `python models/train_classifier.py data/messages.db models/classifier.pkl`
+
+2. Run the following command in the app's directory to run your web app.
+    `python run.py`
+
+3. Go to http://0.0.0.0:3001/
 
 ## Repository Description
+Below is the directory structure of the app. I deleted the classifier because it was too big for github.
 ```
 .
 ├── app
@@ -60,37 +89,10 @@ use Flask Web App to get the user message and classify them into 36 categories. 
 │   ├── disaster_categories.csv-------# DATA TO PROCESS
 │   ├── disaster_messages.csv---------# DATA TO PROCESS
 │   └── process_data.py---------------# PERFORMS ETL PROCESS
-├── img-------------------------------# PLOTS FOR USE IN README AND THE WEB APP
+├── ETL Pipeline Preparation.ipynb----# The Jupyter notebook used to draft the ETL pipeline
+├── images-------------------------------# PLOTS FOR USE IN README AND THE WEB APP
+├── ML Pipeline Preparation.ipynb----# The Jupyter notebook used to draft the Macine learning pipeline
 ├── models
 │   └── train_classifier.py-----------# PERFORMS CLASSIFICATION TASK
 
 ```
-## Instructions to run 
-1. Run the following commands in the project's root directory to set up your database and model.
-
-    - To run ETL pipeline that cleans data and stores in database
-        `python data/process_data.py data/disaster_messages.csv data/disaster_categories.csv data/DisasterResponse.db`
-    - To run ML pipeline that trains classifier and saves
-        `python models/train_classifier.py data/DisasterResponse.db models/classifier.pkl`
-
-2. Run the following command in the app's directory to run your web app.
-    `python run.py`
-
-3. Go to http://0.0.0.0:3001/
-   
-## Results
-
-### Visualization
-
-![title](images/view_1.png)
-![title](images/view_2.png)
-
-
-### Testing the model
-![title](images/view_3.png)
-
-
-## Credits
-
-Thanks [Udacity](https://www.udacity.com/) for this great and meaningful project. 
-Also a big thanks to my mentor [Eduardo Elael](https://github.com/elael), that help me a lot with my struggles 
