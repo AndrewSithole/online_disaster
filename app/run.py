@@ -1,5 +1,6 @@
 import json
 import plotly
+import nltk
 import pandas as pd
 
 from nltk.stem import WordNetLemmatizer
@@ -10,7 +11,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from flask import Flask
 from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
-from sklearn.externals import joblib
+import joblib
 from sqlalchemy import create_engine
 
 
@@ -46,7 +47,7 @@ def tokenize(text):
     return clean_tokens
 
 # load data
-engine = create_engine('sqlite:///../data/DisasterResponse.db')
+engine = create_engine('sqlite:///../data/messages.db')
 df = pd.read_sql_table('df_clean', engine)
 
 # load model

@@ -1,58 +1,79 @@
 
+# import libraries
 import sys
-import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine
 
-
 def load_data(messages_filepath, categories_filepath):
     """
-    Takes two CSV files imports them as pandas dataframe and merges into a single df
+    Merges data from 2 sources (messages_filepath and categories_filepath)
+     on id returns the resulting dataframe
     Args:
-        messages_filepath(dataframe): messages_filepath: path to messages data
-        categories_filepath(dataframe): path to categories data
+        messages_filepath: path to the messages csv
+        categories_filepath: path to the categories csv
        
     Returns:
-        df(dataframe): dataset combining messages and categories data
+        df: the merged dataset
     """
+    # load messages dataset
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
-    df = pd.merge(messages,categories,on='id')
+    df = pd.merge(messages,categories, on='id')
     return df
 
 
-def clean_data(df):
+def get_last_int(string_value):
     """
-    Cleans the dataset
-
+    function to get last character and return binary (int) value
+    we return binary because the classification_report function expects binary values from our y_test
+    think of it as part of the data cleaning process
     Args:
-        df(dataframe): dataset combining messages and categories data
+        string_value:
 
     Returns:
-        df(dataframe): Cleaned dataset
+        binary int
     """
-    categories = df['categories'].str.split(pat=';', expand=True)
-    row = categories.loc[0]
-    category_colnames = [category_name.split('-')[0] for category_name in row.values]
-    categories.columns = category_colnames
+    return 0 if(int(string_value[-1])==0) else 1
+
+def clean_data(df):
+    """
+    Cleans the dataframe
+
+    Args:
+        df: input dataframe
+
+    Returns:
+        df: output dataframe with duplicates removed and feature columns properly formatted
+    """
+    # create a dataframe of the 36 individual category columns
+    categories = df.categories.str.split(";", expand=True)
+    columns = []
+    for cat in list(categories.loc[0]):
+        columns.append(cat[:(len(cat)) - 2])
+    categories.columns = columns
+
     for column in categories:
-        categories[column] = categories[column].str[-1:].astype(int)
+        # set each value to be the last character of the string
+        categories[column] = categories[column].apply(get_last_int)
+    # drop the original categories column from `df`
     df.drop('categories', axis=1, inplace=True)
-    df = pd.concat([df, categories], axis=1)
-    df['related'] = df['related'].replace(2,0)
-    df.drop_duplicates(inplace=True)
+    # concatenate the original dataframe with the new `categories` dataframe
+    df = pd.concat([df, categories], axis=1, join='inner', sort=False)
+    # drop duplicates
+    df = df.drop_duplicates()
+
     return df
 
 
 def save_data(df, database_filename):
     """
-    Save df as sqlite db
+    Saves dataframe as sqlite database
     Args:
-        df(dataframe): cleaned dataset
-        database_filename (dataframe): database name
+        df: dataframe
+        database_filename: intended database file name (including path)
     """
-  engine = create_engine('sqlite:///{}'.format(database_filename))
-  df.to_sql('df_clean', engine, index=False, if_exists='replace')
+    engine = create_engine('sqlite:///{}'.format(database_filename))
+    df.to_sql('messages', engine, index=False)
 
 def main():
     if len(sys.argv) == 4:
