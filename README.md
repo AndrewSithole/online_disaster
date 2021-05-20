@@ -44,8 +44,11 @@ The project includes a web app where an emergency worker can input a new message
 
 
 ## Results
+ 
 The application in action!
 ![title](images/app_screenshot.png)
+
+The project is deployed [here](https://www.python-course.eu/sys_module.php) - but at the moment, there is an issue I'm working to resolve. on loading the model, the application breaks because it can't find the tokenize function. The error message says: AttributeError: module '__main__' has no attribute 'tokenize'; 
 
 ## Observations
 I observed that although the classifier works, its not producing the optimum results. 
