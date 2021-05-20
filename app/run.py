@@ -1,29 +1,48 @@
 import json
 import plotly
+import re
 import pandas as pd
 import joblib
-
-from nltk.stem import WordNetLemmatizer
-from nltk.tokenize import word_tokenize
-
 from flask import Flask
 from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
+
+import nltk
+
 from sqlalchemy import create_engine
+url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
 
 app = Flask(__name__)
 
 
+
 def tokenize(text):
-    tokens = word_tokenize(text)
-    lemmatizer = WordNetLemmatizer()
+    """
+    converts text into individual words (tokens) that can be vectorised
 
-    clean_tokens = []
-    for tok in tokens:
-        clean_tok = lemmatizer.lemmatize(tok).lower().strip()
-        clean_tokens.append(clean_tok)
+    Args:
+        text: Text document
 
+    Returns:
+       clean_tokens: list of clean tokens, that was tokenized, lower cased, stripped,
+       and lemmatized
+    """
+    # normalized text and remove punctuation
+    text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
+    # Extract all the urls from the provided text
+    detected_urls = re.findall(url_regex, text)
+    # Replace url with a url placeholder string
+    for url in detected_urls:
+        text = text.replace(url, "urlplaceholder")
+    # Extract the word tokens from the provided text
+    tokens = nltk.word_tokenize(text)
+    # Lemmanitizer to remove inflectional and derivationally related forms of a word
+    lemmatizer = nltk.WordNetLemmatizer()
+
+    clean_tokens = [lemmatizer.lemmatize(w).lower().strip() for w in tokens]
+    # List of clean tokens
     return clean_tokens
+
 
 
 # load data
