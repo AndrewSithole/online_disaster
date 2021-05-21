@@ -75,6 +75,7 @@ def index():
 
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
+    # Added more visuals inspired by this post: https://katba-caroline.com/disaster-response-message-classification-pipelines-nltk-flask/
     graphs = [
         {
             'data': [

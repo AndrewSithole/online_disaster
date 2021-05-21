@@ -64,6 +64,8 @@ precision and recall of the
 
 ![title](images/newplot.png)
 
+Added more visuals inspired by this post: https://katba-caroline.com/disaster-response-message-classification-pipelines-nltk-flask/
+
 ## Instructions to run 
 1. Run the following commands in the project's root directory to set up your database and model.
 
