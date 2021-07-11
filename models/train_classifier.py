@@ -8,10 +8,7 @@ nltk.download('stopwords')
 nltk.download('wordnet')
 nltk.download('punkt')
 
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-from nltk.stem import WordNetLemmatizer
-
+from tokenizer import tokenize
 from sqlalchemy import create_engine
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -48,33 +45,6 @@ def load_data(database_filepath):
     y = df.iloc[:,4:]
     return X, y, y.columns
 
-def tokenize(text):
-    """
-    converts text into individual words (tokens) that can be vectorised
-
-    Args:
-        text: Text document
-
-    Returns:
-       clean_tokens: list of clean tokens, that was tokenized, lower cased, stripped,
-       and lemmatized
-    """
-    # normalized text and remove punctuation
-    text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
-    # Extract all the urls from the provided text
-    detected_urls = re.findall(url_regex, text)
-    # Replace url with a url placeholder string
-    for url in detected_urls:
-        text = text.replace(url, "urlplaceholder")
-    # Extract the word tokens from the provided text
-    tokens = nltk.word_tokenize(text)
-    # Lemmanitizer to remove inflectional and derivationally related forms of a word
-    lemmatizer = nltk.WordNetLemmatizer()
-
-    clean_tokens = [lemmatizer.lemmatize(w).lower().strip() for w in tokens]
-    # List of clean tokens
-    return clean_tokens
-
 def create_doc_term_matrix(data_list, vectoriser):
     """
     Method for visualising tokens during development
@@ -105,8 +75,8 @@ def build_model():
     ])
 
     parameters = {'classifier__estimator__base_estimator__criterion': ['gini', 'entropy'],
-                  'classifier__estimator__base_estimator__max_depth': [2, 4, 6, 8, 10, 12],
-                  "classifier__estimator__n_estimators": [1, 2, 3]
+                  'classifier__estimator__base_estimator__max_depth': [2,4],
+                  "classifier__estimator__n_estimators": [1, 2]
                   }
 
     grid_search = GridSearchCV(pipeline, param_grid=parameters, verbose=2)
@@ -126,7 +96,6 @@ def evaluate_model(model, X_test, y_test, category_names):
     """
     y_pred = model.predict(X_test)
     print(classification_report(y_test, y_pred, target_names=category_names))
-    
 
 def save_model(model, model_filepath):
     """
